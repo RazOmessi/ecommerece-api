@@ -5,7 +5,10 @@ import com.openu.apis.beans.ProductBean;
 import com.openu.apis.cache.DataCache;
 import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
+import com.openu.apis.dal.IResultSetExtractor;
 import com.openu.apis.dal.MySqlDal;
+import com.openu.apis.exceptions.CreateProductException;
+import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
 
 import java.sql.*;
@@ -22,12 +25,12 @@ public class ProductDao {
     private DataCache<Integer, ProductBean> _products;
 
     public static ProductDao getInstance() {
-        if(_instance != null){
+        if (_instance != null) {
             return _instance;
         }
 
-        synchronized(Product.class) {
-            if(_instance == null){
+        synchronized (Product.class) {
+            if (_instance == null) {
                 _instance = new ProductDao(MySqlDal.getInstance());
             }
 
@@ -40,19 +43,19 @@ public class ProductDao {
         this._products = new DataCache<Integer, ProductBean>(MAX_SIZE, new ICacheLoader<Integer, ProductBean>() {
             public ProductBean load(Integer key) {
                 Connection con = null;
-                try{
+                try {
                     con = _dal.getConnection();
                     PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM `e-commerce`.products WHERE id = ? limit 1;");
                     preparedStatement.setInt(1, key);
                     ResultSet rs = preparedStatement.executeQuery();
 
-                    if(rs.next()){
+                    if (rs.next()) {
                         return toProduct(rs);
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } finally {
-                    if(con != null){
+                    if (con != null) {
                         _dal.closeConnection(con);
                     }
                 }
@@ -78,23 +81,24 @@ public class ProductDao {
     }
 
     @SafeVarargs
-    private final boolean isWhereClause(List<String>... filters){
-        for(List<String> filter : filters){
-            if(filter != null && !filter.isEmpty())
+    private final boolean isWhereClause(List<String>... filters) {
+        for (List<String> filter : filters) {
+            if (filter != null && !filter.isEmpty())
                 return true;
         }
         return false;
     }
 
-    private String buildQuery(List<String> vendors){
+    private String buildQuery(List<String> vendors) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM `e-commerce`.products");
 
-        if(isWhereClause(vendors)){
+        if (isWhereClause(vendors)) {
             queryBuilder.append(" where");
         }
 
-        if(vendors != null && !vendors.isEmpty()) {
+        //todo: prepare statment
+        if (vendors != null && !vendors.isEmpty()) {
             List<String> vendorIds = vendors.stream().map(vendor -> Lookups.getInstance().getLkpVendor().getReversedLookup(vendor).toString()).collect(Collectors.toList());
             queryBuilder.append(String.format(" vendorId in (%s)", String.join(",", vendorIds)));
         }
@@ -105,38 +109,55 @@ public class ProductDao {
 
     public List<ProductBean> getProducts(List<String> vendors) throws SQLException {
         Connection con = null;
-        try{
+        try {
             con = _dal.getConnection();
             Statement statement = con.createStatement();
             ResultSet rs = statement.executeQuery(buildQuery(vendors));
 
             List<ProductBean> res = new ArrayList<ProductBean>();
-            while(rs.next()){
+            while (rs.next()) {
                 res.add(toProduct(rs));
             }
             return res;
         } finally {
-            if(con != null){
+            if (con != null) {
                 _dal.closeConnection(con);
             }
         }
     }
 
-    public void createProduct(ProductBean product) throws SQLException {
+    public int createProduct(ProductBean product) throws EcommerceException {
         Connection con = null;
-        try{
+        try {
             con = _dal.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.products (`categoryId`, `vendorId`, `name`, `description`, `price`, `unitsInStock`, `discount`) VALUES (?, ?, ?, ?, ?, ?, ?);");
-            preparedStatement.setInt(1, key);
-            ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.setInt(1, Lookups.getInstance().getLkpCategory().getReversedLookup(product.getCategory()));
+            preparedStatement.setInt(2, Lookups.getInstance().getLkpVendor().getReversedLookup(product.getVendor()));
+            preparedStatement.setString(3, product.getName());
+            preparedStatement.setString(4, product.getDescription());
+            preparedStatement.setDouble(5, product.getPrice());
+            preparedStatement.setInt(6, product.getUnitsInStock());
+            preparedStatement.setInt(7, product.getDiscount());
 
-            List<ProductBean> res = new ArrayList<ProductBean>();
-            while(rs.next()){
-                res.add(toProduct(rs));
+            int res = preparedStatement.executeUpdate();
+            if(res != 1){
+                throw new CreateProductException("Unknown error creating product.");
             }
-            return res;
+
+            return _dal.getLastInsertId(con, new IResultSetExtractor<Integer>() {
+                @Override
+                public Integer extract(ResultSet rs) throws EcommerceException, SQLException {
+                    if(rs.next()){
+                        return rs.getInt("lastId");
+                    } else {
+                        throw new CreateProductException("Unable to retrieve product id (product created)");
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new CreateProductException(String.format("Error creating product: %s", e.getMessage()));
         } finally {
-            if(con != null){
+            if (con != null) {
                 _dal.closeConnection(con);
             }
         }

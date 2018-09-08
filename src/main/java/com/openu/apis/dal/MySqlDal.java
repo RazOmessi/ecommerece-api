@@ -1,10 +1,13 @@
 package com.openu.apis.dal;
 
+import com.openu.apis.exceptions.EcommerceException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MySqlDal implements IDal{
     private static MySqlDal _instance;
@@ -50,5 +53,13 @@ public class MySqlDal implements IDal{
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public <K> K getLastInsertId(Connection con, IResultSetExtractor<K> extractor) throws SQLException, EcommerceException {
+        Statement statement = con.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT LAST_INSERT_ID() as lastId;");
+
+        return extractor.extract(rs);
     }
 }
