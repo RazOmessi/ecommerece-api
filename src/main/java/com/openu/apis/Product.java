@@ -9,17 +9,19 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/products")
 public class Product {
 
+    //@DefaultValue("2") @QueryParam("step") int step
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllProducts() {
+    public Response getAllProducts(@QueryParam("vendor") List<String> vendors) {
+        System.out.println(vendors);
         try {
-            List<ProductBean> res = ProductDao.getInstance().getAllProducts();
+            List<ProductBean> res = ProductDao.getInstance().getAllProducts(vendors);
             return Response.status(200).entity(res).build();
         } catch (SQLException e) {
             e.printStackTrace();

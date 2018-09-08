@@ -1,10 +1,8 @@
 package com.openu.apis;
 
-import com.openu.apis.beans.ProductBean;
 import com.openu.apis.beans.UserBean;
-import com.openu.apis.dal.dao.ProductDao;
 import com.openu.apis.dal.dao.UserDao;
-import com.openu.apis.lookups.Lookups;
+import com.openu.apis.services.UsersService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,7 +18,9 @@ public class User {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createUser(UserBean user) {
-        return Response.status(200).entity(user.getId()).build();
+
+
+        return Response.status(200).entity(UsersService.validateUser(user)).build();
     }
 
 

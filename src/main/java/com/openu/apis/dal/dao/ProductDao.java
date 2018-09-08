@@ -11,6 +11,7 @@ import com.openu.apis.lookups.Lookups;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductDao {
     private final int MAX_SIZE = 1000;
@@ -76,12 +77,38 @@ public class ProductDao {
         return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount);
     }
 
-    public List<ProductBean> getAllProducts() throws SQLException {
+    @SafeVarargs
+    private final boolean isWhereClause(List<String>... filters){
+        for(List<String> filter : filters){
+            if(filter != null && !filter.isEmpty())
+                return true;
+        }
+        return false;
+    }
+
+    private String buildQuery(List<String> vendors){
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT * FROM `e-commerce`.products");
+
+        if(isWhereClause(vendors)){
+            queryBuilder.append(" where");
+        }
+
+        if(vendors != null && !vendors.isEmpty()) {
+            List<String> vendorIds = vendors.stream().map(vendor -> Lookups.getInstance().getLkpVendor().getReversedLookup(vendor).toString()).collect(Collectors.toList());
+            queryBuilder.append(String.format(" vendorId in (%s)", String.join(",", vendorIds)));
+        }
+
+        queryBuilder.append(";");
+        return queryBuilder.toString();
+    }
+
+    public List<ProductBean> getAllProducts(List<String> vendors) throws SQLException {
         Connection con = null;
         try{
             con = _dal.getConnection();
             Statement statement = con.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM `e-commerce`.products;");
+            ResultSet rs = statement.executeQuery(buildQuery(vendors));
 
             List<ProductBean> res = new ArrayList<ProductBean>();
             while(rs.next()){
@@ -94,14 +121,6 @@ public class ProductDao {
             }
         }
     }
-
-//    public List<ProductBean> getAllProductsByCategory() {
-//
-//    }
-//
-//    public List<ProductBean> getAllProductsByProvider() {
-//
-//    }
 
     public ProductBean getProductById(int key) {
         return _products.getValue(key);

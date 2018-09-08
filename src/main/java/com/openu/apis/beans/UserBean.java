@@ -13,6 +13,7 @@ public class UserBean {
     private String zipCode;
     private String phoneNumber;
 
+    public UserBean(){}
 
     public UserBean(int id, String username, String hashedPassword, String roleId, String firstName, String lastName, String email, String address, String city, String zipCode, String phoneNumber){
         this.id = id;
