@@ -21,7 +21,7 @@ public class Product {
     public Response getAllProducts(@QueryParam("vendor") List<String> vendors) {
         System.out.println(vendors);
         try {
-            List<ProductBean> res = ProductDao.getInstance().getAllProducts(vendors);
+            List<ProductBean> res = ProductDao.getInstance().getProducts(vendors);
             return Response.status(200).entity(res).build();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -103,12 +103,32 @@ public class ProductDao {
         return queryBuilder.toString();
     }
 
-    public List<ProductBean> getAllProducts(List<String> vendors) throws SQLException {
+    public List<ProductBean> getProducts(List<String> vendors) throws SQLException {
         Connection con = null;
         try{
             con = _dal.getConnection();
             Statement statement = con.createStatement();
             ResultSet rs = statement.executeQuery(buildQuery(vendors));
+
+            List<ProductBean> res = new ArrayList<ProductBean>();
+            while(rs.next()){
+                res.add(toProduct(rs));
+            }
+            return res;
+        } finally {
+            if(con != null){
+                _dal.closeConnection(con);
+            }
+        }
+    }
+
+    public void createProduct(ProductBean product) throws SQLException {
+        Connection con = null;
+        try{
+            con = _dal.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.products (`categoryId`, `vendorId`, `name`, `description`, `price`, `unitsInStock`, `discount`) VALUES (?, ?, ?, ?, ?, ?, ?);");
+            preparedStatement.setInt(1, key);
+            ResultSet rs = preparedStatement.executeQuery();
 
             List<ProductBean> res = new ArrayList<ProductBean>();
             while(rs.next()){
