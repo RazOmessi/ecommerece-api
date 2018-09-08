@@ -6,6 +6,7 @@ import com.openu.apis.cache.DataCache;
 import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
 import com.openu.apis.dal.MySqlDal;
+import com.openu.apis.lookups.Lookups;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -68,7 +69,11 @@ public class ProductDao {
         double price = rs.getDouble("price");
         int unitsInStock = rs.getInt("unitsInStock");
         int discount = rs.getInt("discount");
-        return new ProductBean(productId, categoryId, vendorId, name, description, price, unitsInStock, discount);
+
+        String category = Lookups.getInstance().getLkpCategory().getLookup(categoryId);
+        String vendor = Lookups.getInstance().getLkpVendor().getLookup(vendorId);
+
+        return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount);
     }
 
     public List<ProductBean> getAllProducts() throws SQLException {

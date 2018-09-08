@@ -2,18 +2,20 @@ package com.openu.apis.beans;
 
 public class ProductBean {
     private int id;
-    private int categoryId;
-    private int vendorId;
+    private String category;
+    private String vendor;
     private String name;
     private String description;
     private double price;
     private int unitsInStock;
     private int discount;
 
-    public ProductBean(int id, int categoryId, int vendorId, String name, String description, double price, int unitsInStock, int discount){
+    public ProductBean(){}
+
+    public ProductBean(int id, String category, String vendor, String name, String description, double price, int unitsInStock, int discount){
         this.id = id;
-        this.categoryId = categoryId;
-        this.vendorId = vendorId;
+        this.category = category;
+        this.vendor = vendor;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -29,20 +31,20 @@ public class ProductBean {
         this.id = id;
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(String categoryId) {
+        this.category = categoryId;
     }
 
-    public int getVendorId() {
-        return vendorId;
+    public String getVendor() {
+        return vendor;
     }
 
-    public void setVendorId(int vendorId) {
-        this.vendorId = vendorId;
+    public void setVendor(String vendorId) {
+        this.vendor = vendorId;
     }
 
     public String getName() {

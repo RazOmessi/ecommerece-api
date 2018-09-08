@@ -7,9 +7,14 @@ public class ReversableLookupDao<K, V> extends LookupDao<K, V> {
     private LookupDao<V, K> _reversedDao;
 
     public ReversableLookupDao(final IDal dal, final LookupTableBean table) {
-        super(dal, table);
+        this(dal, table, true);
+    }
 
-        this._reversedDao = new LookupDao<V, K>(dal, table);
+    public ReversableLookupDao(final IDal dal, final LookupTableBean table, boolean isStatic) {
+        super(dal, table, true);
+
+        LookupTableBean reversedTable = new LookupTableBean(table.getSchemaName(), table.getTableName(), table.getValueColumn(), table.getKeyColumn(), table.getMaxCacheSize());
+        this._reversedDao = new LookupDao<V, K>(dal, reversedTable, isStatic);
     }
 
     public K getReversedLookup(V value){
