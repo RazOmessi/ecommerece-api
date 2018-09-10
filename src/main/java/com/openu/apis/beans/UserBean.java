@@ -48,11 +48,11 @@ public class UserBean {
         this.username = username;
     }
 
-    public String getHashedPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setHashedPassword(String hashedPassword) {
+    public void setPassword(String hashedPassword) {
         this.password = hashedPassword;
     }
 

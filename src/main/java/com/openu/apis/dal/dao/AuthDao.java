@@ -81,7 +81,7 @@ public class AuthDao {
         Connection con = null;
         try {
             con = _dal.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement("UPDATE `e-commerce`.user_tokens SET createTs = ? where userId = ?;");
+            PreparedStatement preparedStatement = con.prepareStatement("UPDATE `e-commerce`.user_tokens SET createdTs = ? where userId = ?;");
             preparedStatement.setTimestamp(1, auth.getTimestamp());
             preparedStatement.setInt(2, auth.getUserId());
 
@@ -102,7 +102,7 @@ public class AuthDao {
         Connection con = null;
         try {
             con = _dal.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.user_tokens (`userId`, `token`, `createTs`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE token = ?, createTs = ?;");
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.user_tokens (`userId`, `token`, `createdTs`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE token = ?, createdTs = ?;");
             preparedStatement.setInt(1, auth.getUserId());
             preparedStatement.setString(2, auth.getToken());
             preparedStatement.setTimestamp(3, auth.getTimestamp());
@@ -110,7 +110,7 @@ public class AuthDao {
             preparedStatement.setTimestamp(5, auth.getTimestamp());
 
             int res = preparedStatement.executeUpdate();
-            if(res != 1){
+            if(res < 1){
                 throw new InsertTokenException(String.format("Unknown error inserting token for userId: %s.", auth.getUserId()));
             }
         } catch (SQLException e) {

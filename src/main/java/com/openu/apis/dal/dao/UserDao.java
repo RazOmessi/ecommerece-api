@@ -1,7 +1,6 @@
 package com.openu.apis.dal.dao;
 
 import com.openu.apis.Product;
-import com.openu.apis.beans.ProductBean;
 import com.openu.apis.beans.UserBean;
 import com.openu.apis.cache.DataCache;
 import com.openu.apis.cache.ICacheLoader;
@@ -87,9 +86,9 @@ public class UserDao {
         Connection con = null;
         try {
             con = _dal.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.products (`username`, `hashedPassword`, `roleId`, `firstName`, `lastName`, `email`, `address`, `city`, `zipCode`, `phoneNumber`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.users (`username`, `hashedPassword`, `roleId`, `firstName`, `lastName`, `email`, `address`, `city`, `zipCode`, `phoneNumber`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getHashedPassword());
+            preparedStatement.setString(2, user.getPassword());
             preparedStatement.setInt(3, Lookups.getInstance().getLkpUserRole().getReversedLookup(user.getRoleId()));
             preparedStatement.setString(4, user.getFirstName());
             preparedStatement.setString(5, user.getLastName());
@@ -147,7 +146,7 @@ public class UserDao {
     }
 
     public boolean signIn(UserBean user) {
-        String hashedPassword = AuthService.hashPassword(user.getHashedPassword());
+        String hashedPassword = AuthService.hashPassword(user.getPassword());
 
         Connection con = null;
         try {
@@ -158,7 +157,7 @@ public class UserDao {
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-                user.setId(rs.getInt("userId"));
+                user.setId(rs.getInt("id"));
                 return true;
             }
         } catch (SQLException e) {
