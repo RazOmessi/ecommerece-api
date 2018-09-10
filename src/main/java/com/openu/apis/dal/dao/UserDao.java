@@ -11,6 +11,7 @@ import com.openu.apis.dal.MySqlDal;
 import com.openu.apis.exceptions.CreateUserException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
+import com.openu.apis.services.AuthService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -141,9 +142,33 @@ public class UserDao {
         }
     }
 
-
     public UserBean getUserById(int key) {
         return _users.getValue(key);
     }
 
+    public boolean signIn(UserBean user) {
+        String hashedPassword = AuthService.hashPassword(user.getHashedPassword());
+
+        Connection con = null;
+        try {
+            con = _dal.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM `e-commerce`.users WHERE username = ? and hashedPassword = ? limit 1;");
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, hashedPassword);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                user.setId(rs.getInt("userId"));
+                return true;
+            }
+        } catch (SQLException e) {
+            //todo: add logger
+            e.printStackTrace();
+        } finally {
+            if (con != null) {
+                _dal.closeConnection(con);
+            }
+        }
+        return false;
+    }
 }

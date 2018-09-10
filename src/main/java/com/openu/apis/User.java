@@ -1,5 +1,6 @@
 package com.openu.apis;
 
+import com.openu.apis.auth.AuthManager;
 import com.openu.apis.beans.ErrorResponseBean;
 import com.openu.apis.beans.UserBean;
 import com.openu.apis.dal.dao.UserDao;
@@ -43,6 +44,20 @@ public class User {
             return Response.status(200).entity(user).build();
         }
         return Response.status(404).build();
+    }
+
+    @Path("/signin")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response signIn(UserBean user) {
+        if(UserDao.getInstance().signIn(user)){
+            String token = AuthManager.getInstance().generateToken(user.getId());
+            return Response.status(200).entity(token).build();
+        }
+
+        ErrorResponseBean error = new ErrorResponseBean("Bad username or password.");
+        return Response.status(200).entity(error).build();
     }
 
     @Path("/signup/admin")
