@@ -6,7 +6,10 @@ import com.openu.apis.beans.UserBean;
 import com.openu.apis.cache.DataCache;
 import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
+import com.openu.apis.dal.IResultSetExtractor;
 import com.openu.apis.dal.MySqlDal;
+import com.openu.apis.exceptions.CreateUserException;
+import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
 
 import java.sql.*;
@@ -64,7 +67,7 @@ public class UserDao {
     private UserBean toUser(ResultSet rs) throws SQLException {
         int userId = rs.getInt("id");
         String username = rs.getString("username");
-        String hashedPassword = rs.getString("hashedPassword");
+        //String hashedPassword = rs.getString("hashedPassword");
         Integer roleId = rs.getInt("roleId");
         String firstName = rs.getString("firstName");
         String lastName = rs.getString("lastName");
@@ -74,15 +77,50 @@ public class UserDao {
         String zipCode = rs.getString("zipCode");
         String phoneNumber = rs.getString("phoneNumber");
 
-
         String role = Lookups.getInstance().getLkpUserRole().getLookup(roleId);
 
-        return new UserBean(userId, username, hashedPassword, role, firstName, lastName, email, address, city, zipCode, phoneNumber);
+        return new UserBean(userId, username, null, role, firstName, lastName, email, address, city, zipCode, phoneNumber);
     }
 
-   public void createUser(UserBean user){
+    public int createUser(UserBean user) throws EcommerceException {
+        Connection con = null;
+        try {
+            con = _dal.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.products (`username`, `hashedPassword`, `roleId`, `firstName`, `lastName`, `email`, `address`, `city`, `zipCode`, `phoneNumber`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getHashedPassword());
+            preparedStatement.setInt(3, Lookups.getInstance().getLkpUserRole().getReversedLookup(user.getRoleId()));
+            preparedStatement.setString(4, user.getFirstName());
+            preparedStatement.setString(5, user.getLastName());
+            preparedStatement.setString(6, user.getEmail());
+            preparedStatement.setString(7, user.getAddress());
+            preparedStatement.setString(8, user.getCity());
+            preparedStatement.setString(9, user.getZipCode());
+            preparedStatement.setString(10, user.getPhoneNumber());
 
-   }
+            int res = preparedStatement.executeUpdate();
+            if(res != 1){
+                throw new CreateUserException("Unknown error creating user.");
+            }
+
+            return _dal.getLastInsertId(con, new IResultSetExtractor<Integer>() {
+                @Override
+                public Integer extract(ResultSet rs) throws EcommerceException, SQLException {
+                    if(rs.next()){
+                        return rs.getInt("lastId");
+                    } else {
+                        throw new CreateUserException("Unable to retrieve user id (user created)");
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new CreateUserException(String.format("Error creating user: %s", e.getMessage()));
+        } finally {
+            if (con != null) {
+                _dal.closeConnection(con);
+            }
+        }
+    }
 
     public List<UserBean> getAllUser() throws SQLException {
         Connection con = null;

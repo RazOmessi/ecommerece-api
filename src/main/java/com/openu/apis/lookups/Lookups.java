@@ -24,14 +24,13 @@ public class Lookups {
     private ReversableLookupDao<Integer, String> lkpVendor;
     private LookupDao<Integer, String> lkpOrderStatuses;
     private ReversableLookupDao<Integer, String> lkpCategory;
-    private LookupDao<Integer, String> lkpUserRole;
+    private ReversableLookupDao<Integer, String> lkpUserRole;
 
     private Lookups() {
-        lkpUserRole = new LookupDao<Integer, String>(MySqlDal.getInstance(), LookupsFactory.fromConfigs("lkpUserRoles"), true);
+        lkpUserRole = new ReversableLookupDao<Integer, String>(MySqlDal.getInstance(), LookupsFactory.fromConfigs("lkpUserRoles"), true);
         lkpCategory = new ReversableLookupDao<Integer, String>(MySqlDal.getInstance(), LookupsFactory.fromConfigs("lkpCategory"), true);
         lkpOrderStatuses = new LookupDao<Integer, String>(MySqlDal.getInstance(), LookupsFactory.fromConfigs("lkpOrderStatuses"), true);
         lkpVendor = new ReversableLookupDao<Integer, String>(MySqlDal.getInstance(), LookupsFactory.fromConfigs("lkpVendor"), false);
-
     }
 
     public ReversableLookupDao<Integer, String> getLkpVendor() {
@@ -45,7 +44,8 @@ public class Lookups {
     public ReversableLookupDao<Integer, String> getLkpCategory() {
         return lkpCategory;
     }
-    public LookupDao<Integer, String> getLkpUserRole() {
+    public ReversableLookupDao<Integer, String> getLkpUserRole() {
         return lkpUserRole;
     }
+
 }

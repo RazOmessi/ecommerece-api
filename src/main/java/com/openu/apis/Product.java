@@ -56,12 +56,9 @@ public class Product {
     public Response getProduct(@PathParam("id") int id) {
         ProductBean product = ProductDao.getInstance().getProductById(id);
         if(product != null){
-            ConfigurationManager.getInstance();
             return Response.status(200).entity(product).build();
         }
         return Response.status(404).build();
     }
-
-
 
 }
