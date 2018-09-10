@@ -1,9 +1,12 @@
 package com.openu.apis.beans;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserBean {
     private int id;
     private String username;
-    private String hashedPassword;
+    private String password;
     private String roleId;
     private String firstName;
     private String lastName;
@@ -15,10 +18,10 @@ public class UserBean {
 
     public UserBean(){}
 
-    public UserBean(int id, String username, String hashedPassword, String roleId, String firstName, String lastName, String email, String address, String city, String zipCode, String phoneNumber){
+    public UserBean(int id, String username, String password, String roleId, String firstName, String lastName, String email, String address, String city, String zipCode, String phoneNumber){
         this.id = id;
         this.username = username;
-        this.hashedPassword = hashedPassword;
+        this.password = password;
         this.roleId = roleId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,11 +49,11 @@ public class UserBean {
     }
 
     public String getHashedPassword() {
-        return hashedPassword;
+        return password;
     }
 
     public void setHashedPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
+        this.password = hashedPassword;
     }
 
     public String getRoleId() {
