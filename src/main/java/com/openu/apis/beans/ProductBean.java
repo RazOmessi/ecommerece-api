@@ -1,5 +1,8 @@
 package com.openu.apis.beans;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductBean {
     private int id;
     private String category;
@@ -9,10 +12,11 @@ public class ProductBean {
     private double price;
     private int unitsInStock;
     private int discount;
+    private String url;
 
     public ProductBean(){}
 
-    public ProductBean(int id, String category, String vendor, String name, String description, double price, int unitsInStock, int discount){
+    public ProductBean(int id, String category, String vendor, String name, String description, double price, int unitsInStock, int discount, String url){
         this.id = id;
         this.category = category;
         this.vendor = vendor;
@@ -21,6 +25,7 @@ public class ProductBean {
         this.price = price;
         this.unitsInStock = unitsInStock;
         this.discount = discount;
+        this.url = url;
     }
 
     public int getId() {
@@ -85,5 +90,13 @@ public class ProductBean {
 
     public void setDiscount(int discount) {
         this.discount = discount;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

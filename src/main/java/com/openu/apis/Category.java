@@ -1,14 +1,12 @@
 package com.openu.apis;
 
-import com.openu.apis.beans.ProductBean;
-import com.openu.apis.configurations.ConfigurationManager;
-import com.openu.apis.dal.dao.ProductDao;
 import com.openu.apis.lookups.Lookups;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 

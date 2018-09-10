@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LookupDao<K, V> {
-    private IDal dal;
-    private LookupTableBean table;
+    protected IDal dal;
+    protected LookupTableBean table;
 
     private DataCache<K, V> _lookups;
 

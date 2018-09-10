@@ -76,8 +76,9 @@ public class ProductDao {
 
         String category = Lookups.getInstance().getLkpCategory().getLookup(categoryId);
         String vendor = Lookups.getInstance().getLkpVendor().getLookup(vendorId);
+        String url = Lookups.getInstance().getLkpProductImages().getLookup(productId);
 
-        return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount);
+        return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount, url);
     }
 
     @SafeVarargs
@@ -144,7 +145,7 @@ public class ProductDao {
                 throw new CreateProductException("Unknown error creating product.");
             }
 
-            return _dal.getLastInsertId(con, new IResultSetExtractor<Integer>() {
+            int productId = _dal.getLastInsertId(con, new IResultSetExtractor<Integer>() {
                 @Override
                 public Integer extract(ResultSet rs) throws EcommerceException, SQLException {
                     if(rs.next()){
@@ -154,6 +155,9 @@ public class ProductDao {
                     }
                 }
             });
+
+            Lookups.getInstance().getLkpProductImages().setLookup(productId, product.getUrl());
+            return productId;
         } catch (SQLException e) {
             throw new CreateProductException(String.format("Error creating product: %s", e.getMessage()));
         } finally {
