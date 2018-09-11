@@ -1,19 +1,13 @@
 package com.openu.apis.dal.dao;
 
 import com.openu.apis.Product;
-import com.openu.apis.beans.OrderBean;
-import com.openu.apis.cache.DataCache;
-import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
-import com.openu.apis.dal.IResultSetExtractor;
 import com.openu.apis.dal.MySqlDal;
 import com.openu.apis.exceptions.CreateCategoryException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.exceptions.OrderDAOException;
-import com.openu.apis.lookups.Lookups;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

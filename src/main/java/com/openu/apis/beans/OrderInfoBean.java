@@ -3,26 +3,25 @@ package com.openu.apis.beans;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderBean {
+public class OrderInfoBean {
 
     private int id;
     private int userId;
-    private int productId;
     private Timestamp timestamp;
-    private int amount;
     private String status;
+    private List<OrderProductsBean> products;
 
-    public OrderBean(){}
+    public OrderInfoBean(){}
 
-    public OrderBean(int id, int userId, int productId, Timestamp timestamp, int amount, String status){
+    public OrderInfoBean(int id, int userId, Timestamp timestamp, String status, List<OrderProductsBean> products){
         this.id = id;
         this.userId = userId;
-        this.productId = productId;
         this.timestamp = timestamp;
-        this.amount = amount;
         this.status = status;
+        this.products = products;
     }
 
     public int getId() {
@@ -41,14 +40,6 @@ public class OrderBean {
         this.userId = userId;
     }
 
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -65,11 +56,11 @@ public class OrderBean {
         this.status = status;
     }
 
-    public int getAmount() {
-        return amount;
+    public List<OrderProductsBean> getProducts() {
+        return products;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setProducts(List<OrderProductsBean> products) {
+        this.products = products;
     }
 }
