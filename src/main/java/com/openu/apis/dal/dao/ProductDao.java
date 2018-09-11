@@ -161,7 +161,7 @@ public class ProductDao {
                 }
             });
 
-            Lookups.getInstance().getLkpProductImages().setLookup(productId, product.getUrl());
+            Lookups.getInstance().getLkpProductImages().setLookup(productId, product.getImageUrl());
             return productId;
         } catch (SQLException e) {
             throw new ProductDaoException(String.format("Error creating product: %s", e.getMessage()));

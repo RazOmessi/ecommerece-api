@@ -12,11 +12,11 @@ public class ProductBean {
     private double price;
     private int unitsInStock;
     private int discount;
-    private String url;
+    private String imageUrl;
 
     public ProductBean(){}
 
-    public ProductBean(int id, String category, String vendor, String name, String description, double price, int unitsInStock, int discount, String url){
+    public ProductBean(int id, String category, String vendor, String name, String description, double price, int unitsInStock, int discount, String imageUrl){
         this.id = id;
         this.category = category;
         this.vendor = vendor;
@@ -25,7 +25,7 @@ public class ProductBean {
         this.price = price;
         this.unitsInStock = unitsInStock;
         this.discount = discount;
-        this.url = url;
+        this.imageUrl = imageUrl;
     }
 
     public int getId() {
@@ -92,11 +92,11 @@ public class ProductBean {
         this.discount = discount;
     }
 
-    public String getUrl() {
-        return url;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
