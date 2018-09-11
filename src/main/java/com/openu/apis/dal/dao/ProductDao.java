@@ -7,7 +7,7 @@ import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
 import com.openu.apis.dal.IResultSetExtractor;
 import com.openu.apis.dal.MySqlDal;
-import com.openu.apis.exceptions.CreateProductException;
+import com.openu.apis.exceptions.ProductDaoException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
 import com.openu.apis.utils.SqlUtils;
@@ -83,7 +83,7 @@ public class ProductDao {
         return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount, url);
     }
 
-    private String buildQuery(List<String> vendors, List<String> categories) {
+    private String buildQuery(List<String> vendors, List<String> categories) throws ProductDaoException {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM `e-commerce`.products");
 
@@ -100,6 +100,12 @@ public class ProductDao {
         //todo: prepare statment
         if (categories != null && !categories.isEmpty()) {
             List<String> categoriesIds = categories.stream().map(category -> Lookups.getInstance().getLkpCategory().getReversedLookup(category)).filter(Objects::nonNull).map(Object::toString).collect(Collectors.toList());
+            //todo: remove this shit
+            if(categoriesIds.isEmpty()){
+                throw new ProductDaoException(String.format("Unknown category"));
+            }
+            if(vendors != null && !vendors.isEmpty())
+                queryBuilder.append(" and");
             queryBuilder.append(String.format(" categoryId in (%s)", String.join(",", categoriesIds)));
         }
 
@@ -107,7 +113,7 @@ public class ProductDao {
         return queryBuilder.toString();
     }
 
-    public List<ProductBean> getProducts(List<String> vendors, List<String> categories) throws SQLException {
+    public List<ProductBean> getProducts(List<String> vendors, List<String> categories) throws SQLException, ProductDaoException {
         Connection con = null;
         try {
             con = _dal.getConnection();
@@ -141,7 +147,7 @@ public class ProductDao {
 
             int res = preparedStatement.executeUpdate();
             if(res != 1){
-                throw new CreateProductException("Unknown error creating product.");
+                throw new ProductDaoException("Unknown error creating product.");
             }
 
             int productId = _dal.getLastInsertId(con, new IResultSetExtractor<Integer>() {
@@ -150,7 +156,7 @@ public class ProductDao {
                     if(rs.next()){
                         return rs.getInt("lastId");
                     } else {
-                        throw new CreateProductException("Unable to retrieve product id (product created)");
+                        throw new ProductDaoException("Unable to retrieve product id (product created)");
                     }
                 }
             });
@@ -158,7 +164,7 @@ public class ProductDao {
             Lookups.getInstance().getLkpProductImages().setLookup(productId, product.getUrl());
             return productId;
         } catch (SQLException e) {
-            throw new CreateProductException(String.format("Error creating product: %s", e.getMessage()));
+            throw new ProductDaoException(String.format("Error creating product: %s", e.getMessage()));
         } finally {
             if (con != null) {
                 _dal.closeConnection(con);

@@ -2,11 +2,9 @@ package com.openu.apis;
 
 import com.openu.apis.beans.ErrorResponseBean;
 import com.openu.apis.beans.ProductBean;
-import com.openu.apis.configurations.ConfigurationManager;
 import com.openu.apis.dal.dao.ProductDao;
-import com.openu.apis.exceptions.CreateProductException;
+import com.openu.apis.exceptions.ProductDaoException;
 import com.openu.apis.exceptions.EcommerceException;
-import com.openu.apis.lookups.Lookups;
 import com.openu.apis.services.ProductsService;
 
 import javax.ws.rs.*;
@@ -26,8 +24,13 @@ public class Product {
             List<ProductBean> res = ProductDao.getInstance().getProducts(vendors, categories);
             return Response.status(200).entity(res).build();
         } catch (SQLException e) {
+            //todo: add logger
             e.printStackTrace();
-            return Response.serverError().entity(e.getMessage()).build();
+            return Response.serverError().entity(new ErrorResponseBean(e.getMessage())).build();
+        } catch (ProductDaoException e) {
+            //todo: add logger
+            e.printStackTrace();
+            return Response.status(400).entity(new ErrorResponseBean(e.getMessage())).build();
         }
     }
 
@@ -39,7 +42,7 @@ public class Product {
         if(errors.isEmpty()){
             try {
                 return Response.status(200).entity(ProductDao.getInstance().createProduct(product)).build();
-            } catch (CreateProductException e){
+            } catch (ProductDaoException e){
                 return Response.status(400).entity(new ErrorResponseBean(e.getMessage())).build();
             } catch (EcommerceException e) {
                 throw new RuntimeException("Error implementing create product.");
