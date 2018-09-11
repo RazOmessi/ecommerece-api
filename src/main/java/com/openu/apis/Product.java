@@ -21,9 +21,9 @@ public class Product {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllProducts(@QueryParam("vendor") List<String> vendors) {
+    public Response getAllProducts(@QueryParam("vendor") List<String> vendors, @QueryParam("category") List<String> categories) {
         try {
-            List<ProductBean> res = ProductDao.getInstance().getProducts(vendors);
+            List<ProductBean> res = ProductDao.getInstance().getProducts(vendors, categories);
             return Response.status(200).entity(res).build();
         } catch (SQLException e) {
             e.printStackTrace();

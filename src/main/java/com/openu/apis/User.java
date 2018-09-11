@@ -47,11 +47,7 @@ public class User {
         return Response.status(404).build();
     }
 
-    @Path("/signin")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response signIn(UserBean user) {
+    private Response signIn(UserBean user) {
         if(UserDao.getInstance().signIn(user)){
             String token = AuthManager.getInstance().generateToken(user.getId());
             StringResponseBean entity = new StringResponseBean(token);
@@ -60,6 +56,24 @@ public class User {
 
         ErrorResponseBean error = new ErrorResponseBean("Bad username or password.");
         return Response.status(400).entity(error).build();
+    }
+
+    @Path("/signin/admin")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response signInAdmin(UserBean user) {
+        user.setRoleId(Roles.Admin.toString());
+        return signIn(user);
+    }
+
+    @Path("/signin/buyer")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response signInBuyer(UserBean user) {
+        user.setRoleId(Roles.Buyer.toString());
+        return signIn(user);
     }
 
     @Path("/signup/admin")

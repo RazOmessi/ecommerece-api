@@ -10,10 +10,12 @@ import com.openu.apis.dal.MySqlDal;
 import com.openu.apis.exceptions.CreateProductException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
+import com.openu.apis.utils.SqlUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ProductDao {
@@ -81,20 +83,11 @@ public class ProductDao {
         return new ProductBean(productId, category, vendor, name, description, price, unitsInStock, discount, url);
     }
 
-    @SafeVarargs
-    private final boolean isWhereClause(List<String>... filters) {
-        for (List<String> filter : filters) {
-            if (filter != null && !filter.isEmpty())
-                return true;
-        }
-        return false;
-    }
-
-    private String buildQuery(List<String> vendors) {
+    private String buildQuery(List<String> vendors, List<String> categories) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM `e-commerce`.products");
 
-        if (isWhereClause(vendors)) {
+        if (SqlUtils.isWhereClause(vendors, categories)) {
             queryBuilder.append(" where");
         }
 
@@ -104,16 +97,22 @@ public class ProductDao {
             queryBuilder.append(String.format(" vendorId in (%s)", String.join(",", vendorIds)));
         }
 
+        //todo: prepare statment
+        if (categories != null && !categories.isEmpty()) {
+            List<String> categoriesIds = categories.stream().map(category -> Lookups.getInstance().getLkpCategory().getReversedLookup(category)).filter(Objects::nonNull).map(Object::toString).collect(Collectors.toList());
+            queryBuilder.append(String.format(" categoryId in (%s)", String.join(",", categoriesIds)));
+        }
+
         queryBuilder.append(";");
         return queryBuilder.toString();
     }
 
-    public List<ProductBean> getProducts(List<String> vendors) throws SQLException {
+    public List<ProductBean> getProducts(List<String> vendors, List<String> categories) throws SQLException {
         Connection con = null;
         try {
             con = _dal.getConnection();
             Statement statement = con.createStatement();
-            ResultSet rs = statement.executeQuery(buildQuery(vendors));
+            ResultSet rs = statement.executeQuery(buildQuery(vendors, categories));
 
             List<ProductBean> res = new ArrayList<ProductBean>();
             while (rs.next()) {

@@ -151,9 +151,10 @@ public class UserDao {
         Connection con = null;
         try {
             con = _dal.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM `e-commerce`.users WHERE username = ? and hashedPassword = ? limit 1;");
+            PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM `e-commerce`.users WHERE username = ? AND hashedPassword = ? AND roleId = ? limit 1;");
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, hashedPassword);
+            preparedStatement.setInt(3, Lookups.getInstance().getLkpUserRole().getReversedLookup(user.getRoleId()));
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
