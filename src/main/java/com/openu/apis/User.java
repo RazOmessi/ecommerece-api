@@ -39,7 +39,11 @@ public class User {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("id") int id) {
+    public Response getUser(@PathParam("id") int id, @HeaderParam("Authorization") String token) {
+        if(!(AuthManager.getInstance().isAuthenticate(token, Roles.Admin) || AuthManager.getInstance().isAuthenticate(token, Roles.Buyer, id))){
+            return Response.status(403).build();
+        }
+
         UserBean user = UserDao.getInstance().getUserById(id);
         if(user != null){
             return Response.status(200).entity(user).build();
@@ -80,7 +84,11 @@ public class User {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createAdminUser(UserBean user) {
+    public Response createAdminUser(UserBean user, @HeaderParam("Authorization") String token) {
+        if(!AuthManager.getInstance().isAuthenticate(token, Roles.Admin)){
+            return Response.status(403).build();
+        }
+
         user.setRoleId(Roles.Admin.toString());
         return createUser(user);
     }
@@ -96,7 +104,11 @@ public class User {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllUsers() {
+    public Response getAllUsers(@HeaderParam("Authorization") String token) {
+        if(!AuthManager.getInstance().isAuthenticate(token, Roles.Admin)){
+            return Response.status(403).build();
+        }
+
         try {
             List<UserBean> res = UserDao.getInstance().getAllUser();
             return Response.status(200).entity(res).build();

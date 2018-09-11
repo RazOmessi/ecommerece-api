@@ -49,7 +49,7 @@ public class AuthDao {
     private UserAuthBean toAuth(ResultSet rs) throws SQLException {
         int userId = rs.getInt("userId");
         String token = rs.getString("token");
-        Timestamp timestamp = rs.getTimestamp("createdTimestamp"); //todo: change to timestamp
+        Timestamp timestamp = rs.getTimestamp("createdTs"); //todo: change to timestamp
 
         return new UserAuthBean(userId, token, timestamp);
     }

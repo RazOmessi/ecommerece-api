@@ -14,6 +14,8 @@ import com.openu.apis.lookups.Lookups;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class OrderDao {
     private static final int MAX_SIZE = 1000;
@@ -112,17 +114,24 @@ public class OrderDao {
         }
     }
 
-    public int createOrder(OrderBean order) throws EcommerceException {
+    public int createOrders(int userId, List<OrderBean> orders) throws EcommerceException {
         Connection con = null;
         try {
             con = _dal.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.orders (`userId`, `productId`, `amount`) VALUES (?, ?, ?);");
-            preparedStatement.setInt(1, order.getUserId());
-            preparedStatement.setInt(2, order.getProductId());
-            preparedStatement.setInt(3, order.getAmount());
+            String queryBuilder = "INSERT INTO `e-commerce`.orders (`userId`, `productId`, `amount`) VALUES " +
+                    String.join(",", orders.stream().map(order -> "(?, ?, ?) ").collect(Collectors.toList())) +
+                    ";";
+
+            PreparedStatement preparedStatement = con.prepareStatement(queryBuilder);
+            int index = 1;
+            for(OrderBean order : orders){
+                preparedStatement.setInt(index++, order.getUserId());
+                preparedStatement.setInt(index++, order.getProductId());
+                preparedStatement.setInt(index++, order.getAmount());
+            }
 
             int res = preparedStatement.executeUpdate();
-            if(res != 1){
+            if(res != orders.size()){
                 throw new OrderDAOException("Unknown error creating order.");
             }
 

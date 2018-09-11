@@ -63,14 +63,22 @@ public class AuthManager {
         return token;
     }
 
-    public boolean isAuthenticate(String token, Roles role){
+    public boolean isAuthenticate(String token, Roles role) {
+        return isAuthenticate(token, role, null);
+    }
+
+    public int getUserId(String token) {
+        return _cache.getValue(token).getUserId();
+    }
+
+    public boolean isAuthenticate(String token, Roles role, Integer id){
         UserAuthBean auth = _cache.getValue(token);
 
         if(auth != null){
             UserBean user = UserDao.getInstance().getUserById(auth.getUserId());
             long now = System.currentTimeMillis();
 
-            if(auth.getTimestamp().after(new Timestamp(now - TOKEN_LIFE_TIME)) && Roles.valueOf(user.getRoleId()) == role){
+            if(auth.getTimestamp().after(new Timestamp(now - TOKEN_LIFE_TIME)) && Roles.valueOf(user.getRoleId()) == role && (id == null || user.getId() == id)){
                 auth.setTimestamp(new Timestamp(now));
                 try{
                     AuthDao.getInstance().refreshToken(auth);

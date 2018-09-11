@@ -1,11 +1,13 @@
 package com.openu.apis;
 
+import com.openu.apis.auth.AuthManager;
 import com.openu.apis.beans.ErrorResponseBean;
 import com.openu.apis.beans.ProductBean;
 import com.openu.apis.dal.dao.ProductDao;
 import com.openu.apis.exceptions.ProductDaoException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.services.ProductsService;
+import com.openu.apis.utils.Roles;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -37,7 +39,11 @@ public class Product {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createProduct(ProductBean product) {
+    public Response createProduct(ProductBean product, @HeaderParam("Authorization") String token) {
+        if(!AuthManager.getInstance().isAuthenticate(token, Roles.Admin)){
+            return Response.status(403).build();
+        }
+
         Set<String> errors = ProductsService.validateProduct(product);
         if(errors.isEmpty()){
             try {
