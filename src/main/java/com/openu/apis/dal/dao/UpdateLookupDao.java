@@ -21,9 +21,11 @@ public class UpdateLookupDao<K,V> extends LookupDao<K, V> {
             preparedStatement.setObject(1, key);
             preparedStatement.setObject(2, value);
             preparedStatement.setObject(3, value);
-            if(preparedStatement.executeUpdate() != 1){
+            if(preparedStatement.executeUpdate() < 0){
                 throw new LookupsException("Unknow error store value.");
             }
+
+            this._lookups.reload(key);
         } catch (SQLException e){
             throw new LookupsException(String.format("Error storing value: %s", e.getMessage()));
         } finally {

@@ -13,7 +13,7 @@ public class LookupDao<K, V> {
     protected IDal dal;
     protected LookupTableBean table;
 
-    private DataCache<K, V> _lookups;
+    protected DataCache<K, V> _lookups;
 
     public LookupDao(final IDal dal, final LookupTableBean table){
         this(dal, table, true);
