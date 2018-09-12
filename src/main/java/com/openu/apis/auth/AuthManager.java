@@ -43,7 +43,6 @@ public class AuthManager {
                 try {
                     return AuthDao.getInstance().getAuthByToken(key);
                 } catch (GetTokenException e){
-                    //todo: add logger
                     return null;
                 }
             }
@@ -83,7 +82,6 @@ public class AuthManager {
                 try{
                     AuthDao.getInstance().refreshToken(auth);
                 } catch (RefreshTokenException e){
-                    //todo: add logger
                     e.printStackTrace();
                 }
                 return true;

@@ -26,11 +26,9 @@ public class Product {
             List<ProductBean> res = ProductDao.getInstance().getProducts(vendors, categories);
             return Response.status(200).entity(res).build();
         } catch (SQLException e) {
-            //todo: add logger
             e.printStackTrace();
             return Response.serverError().entity(new ErrorResponseBean(e.getMessage())).build();
         } catch (ProductDaoException e) {
-            //todo: add logger
             e.printStackTrace();
             return Response.status(400).entity(new ErrorResponseBean(e.getMessage())).build();
         }
