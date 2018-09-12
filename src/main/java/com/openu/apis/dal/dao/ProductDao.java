@@ -7,6 +7,7 @@ import com.openu.apis.cache.ICacheLoader;
 import com.openu.apis.dal.IDal;
 import com.openu.apis.dal.IResultSetExtractor;
 import com.openu.apis.dal.MySqlDal;
+import com.openu.apis.exceptions.LookupsException;
 import com.openu.apis.exceptions.ProductDaoException;
 import com.openu.apis.exceptions.EcommerceException;
 import com.openu.apis.lookups.Lookups;
@@ -174,6 +175,38 @@ public class ProductDao {
 
     public ProductBean getProductById(int key) {
         return _products.getValue(key);
+    }
+
+    public boolean updateProductById(ProductBean product) throws EcommerceException{
+        Connection con = null;
+        try {
+            con = _dal.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement("UPDATE `e-commerce`.products SET `categoryId` = ?, `vendorId` = ?, `name` = ?, `description` = ?, `price` = ?, `unitsInStock` = ?, `discount` = ? WHERE id = ?;");
+            preparedStatement.setInt(1, Lookups.getInstance().getLkpCategory().getReversedLookup(product.getCategory()));
+            preparedStatement.setInt(2, Lookups.getInstance().getLkpVendor().getReversedLookup(product.getVendor()));
+            preparedStatement.setString(3, product.getName());
+            preparedStatement.setString(4, product.getDescription());
+            preparedStatement.setDouble(5, product.getPrice());
+            preparedStatement.setInt(6, product.getUnitsInStock());
+            preparedStatement.setInt(7, product.getDiscount());
+            preparedStatement.setInt(8, product.getId());
+
+            int res = preparedStatement.executeUpdate();
+            if(res < 1){
+                return false;
+            }
+
+            Lookups.getInstance().getLkpProductImages().setLookup(product.getId(), product.getImageUrl());
+            _products.reload(product.getId());
+
+            return true;
+        } catch (SQLException e) {
+            throw new ProductDaoException(String.format("Error updating product: %s", e.getMessage()));
+        } finally {
+            if (con != null) {
+                _dal.closeConnection(con);
+            }
+        }
     }
 
 }

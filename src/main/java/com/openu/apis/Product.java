@@ -69,4 +69,26 @@ public class Product {
         return Response.status(404).build();
     }
 
+    @PUT
+    @Path("{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateProduct(@PathParam("id") int id, ProductBean product, @HeaderParam("Authorization") String token) {
+        if(!AuthManager.getInstance().isAuthenticate(token, Roles.Admin)){
+            return Response.status(403).build();
+        }
+
+        if(ProductDao.getInstance().getProductById(id) != null){
+            product.setId(id);
+
+            try {
+                if(ProductDao.getInstance().updateProductById(product)){
+                    return Response.status(204).build();
+                }
+            } catch (EcommerceException e) {
+                return Response.status(400).entity(new ErrorResponseBean(e.getMessage())).build();
+            }
+        }
+        return Response.status(404).build();
+    }
+
 }

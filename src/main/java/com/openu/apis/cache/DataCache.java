@@ -42,7 +42,9 @@ public class DataCache<K, V> {
         V value = _loader.load(key);
         if(value != null){
             if(_keys.size() == _maxSize){
-                _keys.poll();
+                synchronized (this) {
+                    _cache.remove(_keys.poll());
+                }
             }
 
             _keys.add(key);
@@ -52,5 +54,19 @@ public class DataCache<K, V> {
         }
 
         return null;
+    }
+
+    public void reload(K key){
+        if (!_cache.containsKey(key)){
+            //let the load function insert the key to the queue
+            _cache.get(key);
+        } else {
+            V value = _loader.load(key);
+            synchronized (this) {
+                if(_cache.containsKey(key)){
+                    _cache.put(key, value);
+                }
+            }
+        }
     }
 }
