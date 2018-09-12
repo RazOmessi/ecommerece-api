@@ -88,7 +88,7 @@ public class UserDao {
             con = _dal.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `e-commerce`.users (`username`, `hashedPassword`, `roleId`, `firstName`, `lastName`, `email`, `address`, `city`, `zipCode`, `phoneNumber`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(2, AuthService.hashPassword(user.getPassword()));
             preparedStatement.setInt(3, Lookups.getInstance().getLkpUserRole().getReversedLookup(user.getRoleId()));
             preparedStatement.setString(4, user.getFirstName());
             preparedStatement.setString(5, user.getLastName());
